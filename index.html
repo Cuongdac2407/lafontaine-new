@@ -39,13 +39,11 @@
             white-space: pre-line;
             margin: 20px;
             line-height: 1.6;
-
-
         }
 
         button {
             display: block;
-            margin: 20px auto;
+            margin: 10px auto;
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
@@ -55,7 +53,6 @@
             border-radius: 5px;
         }
 
-
         .poem-list-container {
             display: flex;
             justify-content: space-between;
@@ -64,13 +61,50 @@
         .poem-list-column {
             width: 48%;
         }
+
+        #copy-all-fr-button {
+            background-color: #2196F3;
+        }
+
+        #copy-all-vi-button {
+            background-color: #009688;
+        }
+
+        #copy-fr-button {
+            background-color: #FF9800;
+        }
+
+        #copy-vi-button {
+            background-color: #9C27B0;
+        }
+
+        #back-button {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background-color: #f44336;
+        }
+
+        .copy-buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 
 <body>
     <h1>Bài Thơ</h1>
-    <div id="poem-list" class="poem-list-container">
 
+    <!-- Các nút copy toàn bộ -->
+    <div class="copy-buttons">
+        <button id="copy-all-fr-button">Copy 169 Bài Thơ (Pháp)</button>
+        <button id="copy-all-vi-button">Copy 169 Bài Thơ (Việt)</button>
+    </div>
+
+    <div id="poem-list" class="poem-list-container">
         <div id="poem-list-left" class="poem-list-column"></div>
         <div id="poem-list-right" class="poem-list-column"></div>
     </div>
@@ -78,15 +112,25 @@
     <div id="poem-detail" style="display: none;">
         <button id="back-button">Quay lại danh sách</button>
         <h2 id="poem-title"></h2>
-        <div id="poem-content" class="poem-content">
 
+        <!-- Các nút copy bài thơ hiện tại -->
+        <div class="copy-buttons">
+            <button id="copy-fr-button">Copy Bài Thơ (Pháp)</button>
+            <button id="copy-vi-button">Copy Bài Thơ (Việt)</button>
         </div>
+
+        <div id="poem-content" class="poem-content"></div>
     </div>
 
     <script>
+        let poemsData = [];
+        let currentPoemIndex = 0;
+
         fetch('poems_fr.json')
             .then(response => response.json())
             .then(poems => {
+                poemsData = poems;
+
                 function displayPoemList() {
                     const leftColumn = document.getElementById('poem-list-left');
                     const rightColumn = document.getElementById('poem-list-right');
@@ -113,6 +157,7 @@
                 }
 
                 function displayPoemDetail(index) {
+                    currentPoemIndex = index;
                     const poem = poems[index];
                     document.getElementById('poem-title').textContent = poem.title;
                     const poemContentDiv = document.getElementById('poem-content');
@@ -149,6 +194,44 @@
                     document.getElementById('poem-list').style.display = 'flex';
                     document.getElementById('poem-detail').style.display = 'none';
                 }
+
+                // Nút copy 1 bài thơ tiếng Pháp
+                document.getElementById('copy-fr-button').addEventListener('click', () => {
+                    const poem = poemsData[currentPoemIndex];
+                    const frText = `${poem.title}\n\n[Tiếng Pháp]\n${poem.poem}`;
+                    navigator.clipboard.writeText(frText).then(() => {
+                        alert('Đã copy bài thơ tiếng Pháp!');
+                    });
+                });
+
+                // Nút copy 1 bài thơ tiếng Việt
+                document.getElementById('copy-vi-button').addEventListener('click', () => {
+                    const poem = poemsData[currentPoemIndex];
+                    const viText = `${poem.title}\n\n[Tiếng Việt]\n${poem['poem-vi']}`;
+                    navigator.clipboard.writeText(viText).then(() => {
+                        alert('Đã copy bài thơ tiếng Việt!');
+                    });
+                });
+
+                // Nút copy toàn bộ 169 bài thơ tiếng Pháp
+                document.getElementById('copy-all-fr-button').addEventListener('click', () => {
+                    const allFrText = poemsData.map((poem, i) => {
+                        return `${i + 1}. ${poem.title}\n\n[Tiếng Pháp]\n${poem.poem}\n\n---\n`;
+                    }).join('');
+                    navigator.clipboard.writeText(allFrText).then(() => {
+                        alert('Đã copy 169 bài thơ tiếng Pháp!');
+                    });
+                });
+
+                // Nút copy toàn bộ 169 bài thơ tiếng Việt
+                document.getElementById('copy-all-vi-button').addEventListener('click', () => {
+                    const allViText = poemsData.map((poem, i) => {
+                        return `${i + 1}. ${poem.title}\n\n[Tiếng Việt]\n${poem['poem-vi']}\n\n---\n`;
+                    }).join('');
+                    navigator.clipboard.writeText(allViText).then(() => {
+                        alert('Đã copy 169 bài thơ tiếng Việt!');
+                    });
+                });
 
                 document.getElementById('back-button').addEventListener('click', goBack);
                 displayPoemList();
