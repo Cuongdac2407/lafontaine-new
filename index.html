@@ -78,6 +78,22 @@
             background-color: #9C27B0;
         }
 
+        #download-all-fr-button {
+            background-color: #3F51B5;
+        }
+
+        #download-all-vi-button {
+            background-color: #00796B;
+        }
+
+        #download-fr-button {
+            background-color: #F57C00;
+        }
+
+        #download-vi-button {
+            background-color: #7B1FA2;
+        }
+
         #back-button {
             position: fixed;
             bottom: 20px;
@@ -98,10 +114,12 @@
 <body>
     <h1>Bài Thơ</h1>
 
-    <!-- Các nút copy toàn bộ -->
+    <!-- Các nút copy và tải toàn bộ -->
     <div class="copy-buttons">
         <button id="copy-all-fr-button">Copy 169 Bài Thơ (Pháp)</button>
         <button id="copy-all-vi-button">Copy 169 Bài Thơ (Việt)</button>
+        <button id="download-all-fr-button">Tải 169 Bài Thơ (Pháp)</button>
+        <button id="download-all-vi-button">Tải 169 Bài Thơ (Việt)</button>
     </div>
 
     <div id="poem-list" class="poem-list-container">
@@ -113,10 +131,12 @@
         <button id="back-button">Quay lại danh sách</button>
         <h2 id="poem-title"></h2>
 
-        <!-- Các nút copy bài thơ hiện tại -->
+        <!-- Các nút copy và tải bài thơ hiện tại -->
         <div class="copy-buttons">
             <button id="copy-fr-button">Copy Bài Thơ (Pháp)</button>
             <button id="copy-vi-button">Copy Bài Thơ (Việt)</button>
+            <button id="download-fr-button">Tải Bài Thơ (Pháp)</button>
+            <button id="download-vi-button">Tải Bài Thơ (Việt)</button>
         </div>
 
         <div id="poem-content" class="poem-content"></div>
@@ -195,7 +215,7 @@
                     document.getElementById('poem-detail').style.display = 'none';
                 }
 
-                // Nút copy 1 bài thơ tiếng Pháp
+                // Copy bài thơ hiện tại
                 document.getElementById('copy-fr-button').addEventListener('click', () => {
                     const poem = poemsData[currentPoemIndex];
                     const frText = `${poem.title}\n\n[Tiếng Pháp]\n${poem.poem}`;
@@ -204,7 +224,6 @@
                     });
                 });
 
-                // Nút copy 1 bài thơ tiếng Việt
                 document.getElementById('copy-vi-button').addEventListener('click', () => {
                     const poem = poemsData[currentPoemIndex];
                     const viText = `${poem.title}\n\n[Tiếng Việt]\n${poem['poem-vi']}`;
@@ -213,7 +232,7 @@
                     });
                 });
 
-                // Nút copy toàn bộ 169 bài thơ tiếng Pháp
+                // Copy toàn bộ
                 document.getElementById('copy-all-fr-button').addEventListener('click', () => {
                     const allFrText = poemsData.map((poem, i) => {
                         return `${i + 1}. ${poem.title}\n\n[Tiếng Pháp]\n${poem.poem}\n\n---\n`;
@@ -223,7 +242,6 @@
                     });
                 });
 
-                // Nút copy toàn bộ 169 bài thơ tiếng Việt
                 document.getElementById('copy-all-vi-button').addEventListener('click', () => {
                     const allViText = poemsData.map((poem, i) => {
                         return `${i + 1}. ${poem.title}\n\n[Tiếng Việt]\n${poem['poem-vi']}\n\n---\n`;
@@ -233,10 +251,48 @@
                     });
                 });
 
+                // Tạo và tải file .txt
+                function downloadTextFile(filename, textContent) {
+                    const blob = new Blob([textContent], { type: 'text/plain' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = filename;
+                    link.click();
+                    URL.revokeObjectURL(link.href);
+                }
+
+                // Tải bài thơ hiện tại
+                document.getElementById('download-fr-button').addEventListener('click', () => {
+                    const poem = poemsData[currentPoemIndex];
+                    const frText = `${poem.title}\n\n[Tiếng Pháp]\n${poem.poem}`;
+                    downloadTextFile(`${poem.title}_FR.txt`, frText);
+                });
+
+                document.getElementById('download-vi-button').addEventListener('click', () => {
+                    const poem = poemsData[currentPoemIndex];
+                    const viText = `${poem.title}\n\n[Tiếng Việt]\n${poem['poem-vi']}`;
+                    downloadTextFile(`${poem.title}_VI.txt`, viText);
+                });
+
+                // Tải toàn bộ
+                document.getElementById('download-all-fr-button').addEventListener('click', () => {
+                    const allFrText = poemsData.map((poem, i) => {
+                        return `${i + 1}. ${poem.title}\n\n[Tiếng Pháp]\n${poem.poem}\n\n---\n`;
+                    }).join('');
+                    downloadTextFile(`169_Bai_Tho_Phap.txt`, allFrText);
+                });
+
+                document.getElementById('download-all-vi-button').addEventListener('click', () => {
+                    const allViText = poemsData.map((poem, i) => {
+                        return `${i + 1}. ${poem.title}\n\n[Tiếng Việt]\n${poem['poem-vi']}\n\n---\n`;
+                    }).join('');
+                    downloadTextFile(`169_Bai_Tho_Viet.txt`, allViText);
+                });
+
                 document.getElementById('back-button').addEventListener('click', goBack);
+
                 displayPoemList();
-            })
-            .catch(error => console.error('Lỗi tải file JSON:', error));
+            });
     </script>
 </body>
 
