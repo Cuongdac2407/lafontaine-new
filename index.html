@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bài Thơ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .poem-title {
+            cursor: pointer;
+            color: blue;
+            text-decoration: underline;
+            margin: 10px 0;
+        }
+
+        .poem-content {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .poem-column {
+            width: 45%;
+        }
+
+        .poem-column h3 {
+            text-align: center;
+        }
+
+        .poem-text {
+            white-space: pre-line;
+            margin: 20px;
+            line-height: 1.6;
+
+
+        }
+
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+
+        .poem-list-container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .poem-list-column {
+            width: 48%;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Bài Thơ</h1>
+    <div id="poem-list" class="poem-list-container">
+
+        <div id="poem-list-left" class="poem-list-column"></div>
+        <div id="poem-list-right" class="poem-list-column"></div>
+    </div>
+
+    <div id="poem-detail" style="display: none;">
+        <button id="back-button">Quay lại danh sách</button>
+        <h2 id="poem-title"></h2>
+        <div id="poem-content" class="poem-content">
+
+        </div>
+    </div>
+
+    <script>
+        fetch('poems_fr.json')
+            .then(response => response.json())
+            .then(poems => {
+                function displayPoemList() {
+                    const leftColumn = document.getElementById('poem-list-left');
+                    const rightColumn = document.getElementById('poem-list-right');
+                    const total = poems.length;
+                    const half = Math.ceil(total / 2);
+
+                    for (let i = 0; i < total; i++) {
+                        const poem = poems[i];
+                        const poemTitle = document.createElement('h3');
+                        poemTitle.classList.add('poem-title');
+                        poemTitle.textContent = `${i + 1}. ${poem.title}`;
+                        poemTitle.onclick = () => displayPoemDetail(i);
+
+                        if (i < half) {
+                            leftColumn.appendChild(poemTitle);
+                        } else {
+                            rightColumn.appendChild(poemTitle);
+                        }
+                    }
+                }
+
+                function formatPoem(poemText) {
+                    return poemText.split('\n\n').map(stanza => `<p>${stanza}</p>`).join('');
+                }
+
+                function displayPoemDetail(index) {
+                    const poem = poems[index];
+                    document.getElementById('poem-title').textContent = poem.title;
+                    const poemContentDiv = document.getElementById('poem-content');
+
+                    const frColumn = document.createElement('div');
+                    frColumn.classList.add('poem-column');
+                    const frHeader = document.createElement('h3');
+                    frHeader.textContent = 'Tiếng Pháp';
+                    const frPoem = document.createElement('div');
+                    frPoem.classList.add('poem-text');
+                    frPoem.innerHTML = formatPoem(poem.poem);
+                    frColumn.appendChild(frHeader);
+                    frColumn.appendChild(frPoem);
+
+                    const viColumn = document.createElement('div');
+                    viColumn.classList.add('poem-column');
+                    const viHeader = document.createElement('h3');
+                    viHeader.textContent = 'Tiếng Việt';
+                    const viPoem = document.createElement('div');
+                    viPoem.classList.add('poem-text');
+                    viPoem.innerHTML = formatPoem(poem['poem-vi']);
+                    viColumn.appendChild(viHeader);
+                    viColumn.appendChild(viPoem);
+
+                    poemContentDiv.innerHTML = '';
+                    poemContentDiv.appendChild(frColumn);
+                    poemContentDiv.appendChild(viColumn);
+
+                    document.getElementById('poem-list').style.display = 'none';
+                    document.getElementById('poem-detail').style.display = 'block';
+                }
+
+                function goBack() {
+                    document.getElementById('poem-list').style.display = 'flex';
+                    document.getElementById('poem-detail').style.display = 'none';
+                }
+
+                document.getElementById('back-button').addEventListener('click', goBack);
+                displayPoemList();
+            })
+            .catch(error => console.error('Lỗi tải file JSON:', error));
+    </script>
+</body>
+
+</html>
